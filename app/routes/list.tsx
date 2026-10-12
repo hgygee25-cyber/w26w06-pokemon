@@ -19,20 +19,26 @@ export function meta({}: Route.MetaArgs) {
     { name: "description", content: "포켓몬 도감" },
   ];
 }
-
+//클래스 네임을 사용. 아까 코드는 클래스를 사용함. 이거랑 다름
 export default function List() {
   return (
-    <div>
-      <h2>포켓몬 목록</h2>
-      <div>
+    <div className="min-h-screen bg-slate-50 p-6">
+      <h1 className="text-2xl font-bold mb-6 text-slate-800">포켓몬 목록</h1>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {pokemons.map((pokemon) => (
-          <div key={pokemon.id}>
-            <img src={pokemon.image} alt={pokemon.name} />
-            <p>{pokemon.name}</p>
+          <div className="bg-white rounded-xl shadow hover:shadow-md transition
+                      p-4 flex flex-col items-center gap-2
+                      border border-slate-200 hover:border-yellow-400"
+            key={pokemon.id}>
+            <img className="w-24 h-24" src={pokemon.image} alt={pokemon.name} />
+            <p className="font-semibold text-slate-700">{pokemon.name}</p>
           </div>
         ))}
       </div>
     </div>
-  );
+  )
 }
 //alt: 폰트를 키워주는/읽어주는 기능 (예: "포켓몬 이미지" 이렇게 읽어줌)
+//2xl -> xl : 폰트 작아짐
+//mb-6 : 마진을 상하좌우에 똑같이줌
