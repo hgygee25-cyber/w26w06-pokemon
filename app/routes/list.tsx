@@ -21,7 +21,6 @@ export function meta({}: Route.MetaArgs) {
     { name: "description", content: "포켓몬 도감" },
   ];
 }*/
-
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "포켓몬" },
@@ -29,53 +28,34 @@ export function meta({}: Route.MetaArgs) {
   ]
 }
 
-//클래스 네임을 사용. 아까 코드는 클래스를 사용함. 이거랑 다름
 type Pokemon = {
   id: number
   name: string
   image: string
 }
 
-export default function List() {
-  const [pokemons, setPokemons] = useState<Pokemon[]>([])
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  const response = await axios.get("https://pokeapi.co/api/v2/pokemon?limit=100")
+  const results = response.data.results
 
-  useEffect(() => {
-    async function fetchPokemons() {
-      try {
-        const response = await axios.get("https://pokeapi.co/api/v2/pokemon?limit=100")
-        const results = response.data.results
-        // console.log("포켓몬 results[]:", results)
-        
-        // results.map을 통해 생성된 100개의 비동기 통신(Promise)들을 하나로 묶어 동시에 실행
-        const pokemonData: Pokemon[] = await Promise.all(
-          results.map(async ( {url} : { url: string }) => {
-            const pokemonResponse = await axios.get(url)
-            const { id, name, sprites } = pokemonResponse.data
-            return {
-              id,
-              name,
-              image: sprites.other["official-artwork"].front_default,
-            }
-          })
-        )
-
-        setPokemons(pokemonData)
-      } catch (error) {
-        console.error("포켓몬 데이터 에러: ", error)
+  const pokemonData: Pokemon[] = await Promise.all(
+    results.map(async ({ url }: { url: string }) => {
+      const pokemonResponse = await axios.get(url)
+      const { id, name, sprites } = pokemonResponse.data
+      return {
+        id,
+        name,
+        image: sprites.other["official-artwork"].front_default,
       }
-    }
+    })
+  )
 
-    fetchPokemons()
-  }, [])
+  return pokemonData
+}
 
-  if (pokemons.length === 0) {
-    return (
-      <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center text-xl font-semibold text-slate-900">
-        포켓몬 데이터를 불러오지 못했습니다.
-      </div>
-    )
-  }
-  
+export default function List() {
+  const pokemons = useLoaderData<typeof clientLoader>()
+
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <h1 className="text-2xl font-bold mb-6 text-slate-800">포켓몬 목록</h1>
